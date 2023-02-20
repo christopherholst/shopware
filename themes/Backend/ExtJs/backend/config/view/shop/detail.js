@@ -34,18 +34,18 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
 
     store: 'detail.Shop',
 
-    createTypeStore: function() {
+    createTypeStore: function () {
         var me = this;
         return me.shopTypeStore = Ext.create('Ext.data.Store', {
-            fields: [ 'type', 'label' ],
+            fields: ['type', 'label'],
             data: [
-                { 'type': 'lang', 'label': '{s name="shop/detail/language_shop_label"}Language shop{/s}' },
-                { 'type': 'sub', 'label': '{s name="shop/detail/sub_shop_label"}Sub shop{/s}' }
+                {'type': 'lang', 'label': '{s name="shop/detail/language_shop_label"}Language shop{/s}'},
+                {'type': 'sub', 'label': '{s name="shop/detail/sub_shop_label"}Sub shop{/s}'}
             ]
         });
     },
 
-    getIdField: function(){
+    getIdField: function () {
         var me = this;
         return {
             xtype: 'hidden',
@@ -53,9 +53,11 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
             listeners: {
                 scope: me,
                 change: function (hidden, value) {
-                    var form = hidden.up('form'),
+                    var me = this,
+                        form = hidden.up('form'),
                         typeSwitchField = form.down('[name=typeSwitch]'),
                         mainIdField,
+                        isDefault,
                         type;
 
                     if (Ext.isEmpty(value)) {
@@ -66,14 +68,17 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
 
                     mainIdField = form.down('[name=mainId]');
                     type = mainIdField.getValue() ? 'lang' : 'sub';
+
+                    isDefault = me.getRecord().raw.default;
+
                     typeSwitchField.setValue(type);
-                    typeSwitchField.setDisabled(value == 1);
+                    typeSwitchField.setDisabled(isDefault);
                 }
             }
         }
     },
 
-    getTypeSwitchField: function(){
+    getTypeSwitchField: function () {
         var me = this;
         return {
             xtype: 'base-element-select',
@@ -85,7 +90,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
             displayField: 'label',
             listeners: {
                 scope: me,
-                change: function(select, value) {
+                change: function (select, value) {
                     var form = select.up('form'),
                         mainFields = form.query('[isMainField]'),
                         requiredMainFields = form.query('[isMainRequired]'),
@@ -101,22 +106,22 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
                         mainIdField.setValue(1);
                     }
 
-                    Ext.each(mainFields, function(field) {
+                    Ext.each(mainFields, function (field) {
                         field[mainAction]();
                     });
-                    Ext.each(requiredMainFields, function(field) {
+                    Ext.each(requiredMainFields, function (field) {
                         field['allowBlank'] = value !== 'sub';
                     });
 
-                    Ext.each(langFields, function(field) {
+                    Ext.each(langFields, function (field) {
                         field[langAction]();
                     });
-                    Ext.each(requiredLangFields, function(field) {
+                    Ext.each(requiredLangFields, function (field) {
                         field['allowBlank'] = value !== 'lang';
                     });
 
                     if (value === 'lang') {
-                        Ext.each(mainFields, function(field) {
+                        Ext.each(mainFields, function (field) {
                             if (field.xtype !== 'config-shop-currency') {
                                 field.setValue('');
                             }
@@ -127,7 +132,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
         }
     },
 
-    getMainField: function() {
+    getMainField: function () {
         var me = this;
         return {
             xtype: 'base-element-select',
@@ -140,7 +145,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
         };
     },
 
-    getDefaultField: function() {
+    getDefaultField: function () {
         var me = this;
         return {
             xtype: 'base-element-boolean',
@@ -148,7 +153,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
             fieldLabel: '{s name="shop/detail/default_label"}Default{/s}',
             isMainField: true,
             readOnly: true,
-            handler: function(button, value) {
+            handler: function (button, value) {
                 var form = button.up('form'),
                     fallbackField = form.down('[name=fallbackId]');
 
@@ -158,7 +163,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
         };
     },
 
-    getItems: function() {
+    getItems: function () {
         var me = this;
 
         me.categorySelect = Ext.create('Shopware.apps.Base.view.element.SelectTree', {
@@ -285,7 +290,7 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
             }]
     },
 
-    loadRecord: function() {
+    loadRecord: function () {
         var me = this;
         me.categorySelect.setValue(null);
         me.categorySelect.setRawValue(null);
@@ -293,11 +298,11 @@ Ext.define('Shopware.apps.Config.view.shop.Detail', {
         me.callParent(arguments);
     },
 
-    updateRecord: function(record) {
+    updateRecord: function (record) {
         var me = this;
         record = record || me.getRecord();
-        record.raw.main = { };
-        record.raw.template = { };
+        record.raw.main = {};
+        record.raw.template = {};
 
         me.callParent(arguments);
     }
